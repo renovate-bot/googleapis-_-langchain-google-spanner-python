@@ -19,7 +19,8 @@ import string
 import pytest
 from google.cloud import spanner
 from langchain_core.documents import Document
-from langchain_google_vertexai import ChatVertexAI, VertexAIEmbeddings
+from langchain_google_vertexai import ChatVertexAI
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 from langchain_google_spanner import (
     GraphDocument,
@@ -51,7 +52,7 @@ def get_llm():
 
 
 def get_embedding():
-    embeddings = VertexAIEmbeddings(model_name="text-embedding-004")
+    embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-2")
     return embeddings
 
 

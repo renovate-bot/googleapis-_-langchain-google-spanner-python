@@ -73,15 +73,15 @@ Use a vector store to store embedded data and perform vector search.
 
 .. code-block:: python
 
-    from langchain_google_spanner import SpannerVectorstore
-    from langchain.embeddings import VertexAIEmbeddings
+    from langchain_google_spanner import SpannerVectorStore
+    from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
-    embeddings_service = VertexAIEmbeddings(model_name="textembedding-gecko@003")
+    embeddings_service = GoogleGenerativeAIEmbeddings(model="textembedding-gecko@003")
     vectorstore = SpannerVectorStore(
         instance_id="my-instance",
         database_id="my-database",
         table_name="my-table",
-        embeddings=embedding_service
+        embeddings=embeddings_service
     )
 
 See the full `Vector Store`_ tutorial.
@@ -207,7 +207,8 @@ Use ``SpannerGraphVectorContextRetriever`` to perform vector search on embedding
 .. code:: python
 
     from langchain_google_spanner import SpannerGraphStore, SpannerGraphVectorContextRetriever
-    from langchain_google_vertexai import ChatVertexAI, VertexAIEmbeddings
+    from langchain_google_vertexai import ChatVertexAI
+    from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 
     graph = SpannerGraphStore(
@@ -215,7 +216,7 @@ Use ``SpannerGraphVectorContextRetriever`` to perform vector search on embedding
         database_id="my-database",
         graph_name="my_graph",
     )
-    embedding_service = VertexAIEmbeddings(model_name="text-embedding-004")
+    embedding_service = GoogleGenerativeAIEmbeddings(model="gemini-embedding-2")
     retriever = SpannerGraphVectorContextRetriever.from_params(
             graph_store=graph,
             embedding_service=embedding_service,
