@@ -18,16 +18,79 @@ import json
 import re
 import string
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Generator, Iterable, List, Mapping, Optional, Tuple, Union
+from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple, Union
 
 from google.cloud import spanner
 from google.cloud.spanner_v1 import JsonObject, param_types
-from langchain_community.graphs.graph_document import GraphDocument, Node, Relationship
-from langchain_community.graphs.graph_store import GraphStore
+from langchain_core.load.serializable import Serializable
+from pydantic import Field
+from langchain_core.documents import Document
 from requests.structures import CaseInsensitiveDict
 
 from .type_utils import TypeUtility
 from .version import __version__
+
+
+class Node(Serializable):
+    """Represents a node in a graph with associated properties."""
+
+    id: Union[str, int]
+    type: str = "Node"
+    properties: Dict[str, Any] = Field(default_factory=dict)
+
+
+class Relationship(Serializable):
+    """Represents a directed relationship between two nodes in a graph."""
+
+    source: Node
+    target: Node
+    type: str
+    properties: Dict[str, Any] = Field(default_factory=dict)
+
+
+class GraphDocument(Serializable):
+    """Represents a graph document consisting of nodes and relationships."""
+
+    nodes: List[Node]
+    relationships: List[Relationship]
+    source: Document
+
+
+class GraphStore(ABC):
+    """Abstract class for graph operations."""
+
+    @property
+    @abstractmethod
+    def get_schema(self) -> str:
+        """Get the schema of the graph database."""
+        pass
+
+    @property
+    @abstractmethod
+    def get_structured_schema(self) -> Dict[str, Any]:
+        """Get the structured schema of the graph database."""
+        pass
+
+    @abstractmethod
+    def refresh_schema(self) -> None:
+        """Refresh the graph schema information."""
+        pass
+
+    @abstractmethod
+    def query(self, query: str, params: dict = {}) -> List[Dict[str, Any]]:
+        """Query the graph."""
+        pass
+
+    @abstractmethod
+    def add_graph_documents(
+        self,
+        graph_documents: List[GraphDocument],
+        include_source: bool = False,
+        baseEntityLabel: bool = False,
+    ) -> None:
+        """Add graph documents to the graph."""
+        pass
+
 
 MUTATION_BATCH_SIZE = 1000
 DEFAULT_DDL_TIMEOUT = 300
@@ -472,7 +535,7 @@ class ElementSchema(object):
 
     def add_nodes(
         self, name: str, nodes: List[Node]
-    ) -> Generator[Tuple[str, Tuple[str], List[List[Any]]], None, None]:
+    ) -> Generator[Tuple[str, Tuple[str, ...], List[List[Any]]], None, None]:
         """Builds the data required to add a list of nodes to Spanner.
 
         Args:
@@ -493,7 +556,7 @@ class ElementSchema(object):
 
         # Group changes by columns: this avoids overwriting columns that aren't
         # specified.
-        rows_by_columns: Dict[Tuple[str], List[List[Any]]] = {}
+        rows_by_columns: Dict[Tuple[str, ...], List[List[Any]]] = {}
         for node in nodes:
             properties = node.properties.copy()
             properties[ElementSchema.NODE_KEY_COLUMN_NAME] = node.id
@@ -521,7 +584,7 @@ class ElementSchema(object):
 
     def add_edges(
         self, name: str, edges: List[Relationship]
-    ) -> Generator[Tuple[str, Tuple[str], List[List[Any]]], None, None]:
+    ) -> Generator[Tuple[str, Tuple[str, ...], List[List[Any]]], None, None]:
         """Builds the data required to add a list of edges to Spanner.
 
         Args:
@@ -542,7 +605,7 @@ class ElementSchema(object):
 
         # Group changes by columns: this avoids overwriting columns that aren't
         # specified.
-        rows_by_columns: Dict[Tuple[str], List[List[Any]]] = {}
+        rows_by_columns: Dict[Tuple[str, ...], List[List[Any]]] = {}
         for edge in edges:
             properties = edge.properties.copy()
             properties[ElementSchema.NODE_KEY_COLUMN_NAME] = edge.source.id
@@ -1140,7 +1203,7 @@ class SpannerGraphSchema(object):
 
     def add_nodes(
         self, name: str, nodes: List[Node]
-    ) -> Generator[Tuple[str, Tuple[str], List[List[Any]]], None, None]:
+    ) -> Generator[Tuple[str, Tuple[str, ...], List[List[Any]]], None, None]:
         """Builds the data required to add a list of nodes to Spanner.
 
         Args:
@@ -1161,7 +1224,7 @@ class SpannerGraphSchema(object):
 
     def add_edges(
         self, name: str, edges: List[Relationship]
-    ) -> Generator[Tuple[str, Tuple[str], List[List[Any]]], None, None]:
+    ) -> Generator[Tuple[str, Tuple[str, ...], List[List[Any]]], None, None]:
         """Builds the data required to add a list of edges to Spanner.
 
         Args:
@@ -1210,7 +1273,7 @@ class SpannerInterface(ABC):
 
     @abstractmethod
     def insert_or_update(
-        self, table: str, columns: Tuple[str], values: List[List[Any]]
+        self, table: str, columns: Tuple[str, ...], values: List[List[Any]]
     ) -> None:
         """Insert or update the table.
 
@@ -1269,7 +1332,7 @@ class SpannerImpl(SpannerInterface):
         return op.result(options.get("timeout", DEFAULT_DDL_TIMEOUT))
 
     def insert_or_update(
-        self, table: str, columns: Tuple[str], values: List[List[Any]]
+        self, table: str, columns: Tuple[str, ...], values: List[List[Any]]
     ) -> None:
         for i in range(0, len(values), MUTATION_BATCH_SIZE):
             value_batch = values[i : i + MUTATION_BATCH_SIZE]

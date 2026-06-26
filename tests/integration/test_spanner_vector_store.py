@@ -20,8 +20,10 @@ from typing import Dict
 
 import pytest
 from google.cloud.spanner import Client  # type: ignore
-from langchain_community.document_loaders import RecursiveUrlLoader
-from langchain_community.embeddings import FakeEmbeddings
+from typing import Any, Iterator, List
+from langchain_core.document_loaders import BaseLoader
+from langchain_core.documents import Document
+from langchain_core.embeddings import FakeEmbeddings
 
 from langchain_google_spanner.vector_store import (  # type: ignore
     DistanceStrategy,
@@ -30,6 +32,23 @@ from langchain_google_spanner.vector_store import (  # type: ignore
     TableColumn,
     VectorSearchIndex,
 )
+
+
+class FakeLoader(BaseLoader):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        pass
+
+    def load(self) -> List[Document]:
+        return [
+            Document(
+                page_content="Testing the langchain integration with spanner",
+                metadata={"title": "Hacker News: Article 1"},
+            )
+        ]
+
+    def lazy_load(self) -> Iterator[Document]:
+        yield from self.load()
+
 
 project_id = os.environ["PROJECT_ID"]
 instance_id = os.environ["INSTANCE_ID"]
@@ -249,9 +268,7 @@ class TestSpannerVectorStoreGoogleSQL_KNN:
             ],
         )
 
-        loader = RecursiveUrlLoader(
-            "https://news.ycombinator.com/item?id=1", max_depth=1
-        )
+        loader = FakeLoader("https://news.ycombinator.com/item?id=1", max_depth=1)
 
         embeddings = FakeEmbeddings(size=3)
 
@@ -461,9 +478,7 @@ class TestSpannerVectorStoreGoogleSQL_ANN:
                 ],
             )
 
-        loader = RecursiveUrlLoader(
-            "https://news.ycombinator.com/item?id=1", max_depth=1
-        )
+        loader = FakeLoader("https://news.ycombinator.com/item?id=1", max_depth=1)
         embeddings = FakeEmbeddings(size=title_vector_size)
 
         def cleanup_db():
@@ -681,9 +696,7 @@ class TestSpannerVectorStorePGSQL:
             ],
         )
 
-        loader = RecursiveUrlLoader(
-            "https://news.ycombinator.com/item?id=1", max_depth=1
-        )
+        loader = FakeLoader("https://news.ycombinator.com/item?id=1", max_depth=1)
         embeddings = FakeEmbeddings(size=3)
 
         yield loader, embeddings

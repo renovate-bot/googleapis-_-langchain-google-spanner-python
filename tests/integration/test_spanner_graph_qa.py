@@ -19,12 +19,16 @@ import string
 import pytest
 from google.cloud import spanner
 from langchain.evaluation import load_evaluator
-from langchain_community.graphs.graph_document import GraphDocument, Node, Relationship
+from langchain_google_spanner import (
+    GraphDocument,
+    Node,
+    Relationship,
+    SpannerGraphStore,
+)
 from langchain_core.documents import Document
 from langchain_google_vertexai import ChatVertexAI, VertexAIEmbeddings
 
 from langchain_google_spanner.graph_qa import SpannerGraphQAChain
-from langchain_google_spanner.graph_store import SpannerGraphStore
 
 project_id = os.environ["PROJECT_ID"]
 instance_id = os.environ["INSTANCE_ID"]
