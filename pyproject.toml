@@ -33,7 +33,7 @@ version = {attr = "langchain_google_spanner.version.__version__"}
 [project.urls]
 Homepage = "https://github.com/googleapis/langchain-google-spanner-python"
 Repository = "https://github.com/googleapis/langchain-google-spanner-python.git"
-"Bug Tracker" = "https://langchain-google-vertexaigithub.com/googleapis/langchain-google-spanner-python/issues"
+"Bug Tracker" = "https://github.com/googleapis/langchain-google-spanner-python/issues"
 Changelog = "https://github.com/googleapis/langchain-google-spanner-python/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
