@@ -16,11 +16,10 @@ import datetime
 import os
 import sys
 import uuid
-from typing import Dict
+from typing import Any, Dict, Iterator, List
 
 import pytest
 from google.cloud.spanner import Client  # type: ignore
-from typing import Any, Iterator, List
 from langchain_core.document_loaders import BaseLoader
 from langchain_core.documents import Document
 from langchain_core.embeddings import FakeEmbeddings

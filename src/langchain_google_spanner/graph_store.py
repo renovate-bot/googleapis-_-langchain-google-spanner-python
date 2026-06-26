@@ -22,9 +22,9 @@ from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple, Union
 
 from google.cloud import spanner
 from google.cloud.spanner_v1 import JsonObject, param_types
+from langchain_core.documents import Document
 from langchain_core.load.serializable import Serializable
 from pydantic import Field
-from langchain_core.documents import Document
 from requests.structures import CaseInsensitiveDict
 
 from .type_utils import TypeUtility

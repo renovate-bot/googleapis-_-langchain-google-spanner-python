@@ -23,6 +23,7 @@ import pytest
 from google.cloud.spanner import Client  # type: ignore
 from google.cloud.spanner_v1 import JsonObject
 from langchain_core.documents import Document
+
 from langchain_google_spanner import (
     GraphDocument,
     Node,

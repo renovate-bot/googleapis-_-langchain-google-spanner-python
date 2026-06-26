@@ -18,15 +18,15 @@ import string
 
 import pytest
 from google.cloud import spanner
+from langchain_core.documents import Document
+from langchain_google_vertexai import ChatVertexAI, VertexAIEmbeddings
+
 from langchain_google_spanner import (
     GraphDocument,
     Node,
     Relationship,
     SpannerGraphStore,
 )
-from langchain_core.documents import Document
-from langchain_google_vertexai import ChatVertexAI, VertexAIEmbeddings
-
 from langchain_google_spanner.graph_retriever import (
     SpannerGraphTextToGQLRetriever,
     SpannerGraphVectorContextRetriever,
