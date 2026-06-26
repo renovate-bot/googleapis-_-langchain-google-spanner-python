@@ -20,8 +20,7 @@ import pytest
 from google.cloud import spanner
 from langchain_classic.evaluation import load_evaluator
 from langchain_core.documents import Document
-from langchain_google_vertexai import ChatVertexAI
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 
 from langchain_google_spanner import (
     GraphDocument,
@@ -41,7 +40,7 @@ def random_string(num_char=3):
 
 
 def get_llm():
-    llm = ChatVertexAI(
+    llm = ChatGoogleGenerativeAI(
         model="gemini-3.1-flash-lite",
         location="global",
         temperature=0,
@@ -52,7 +51,9 @@ def get_llm():
 def get_evaluator():
     return load_evaluator(
         "embedding_distance",
-        embeddings=GoogleGenerativeAIEmbeddings(model="gemini-embedding-2"),
+        embeddings=GoogleGenerativeAIEmbeddings(
+            model="gemini-embedding-2", project=project_id, vertexai=True
+        ),
     )
 
 

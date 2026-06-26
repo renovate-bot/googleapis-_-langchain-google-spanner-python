@@ -76,7 +76,11 @@ Use a vector store to store embedded data and perform vector search.
     from langchain_google_spanner import SpannerVectorStore
     from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
-    embeddings_service = GoogleGenerativeAIEmbeddings(model="textembedding-gecko@003")
+    embeddings_service = GoogleGenerativeAIEmbeddings(
+        model="textembedding-gecko@003",
+        project="my-project",
+        vertexai=True,
+    )
     vectorstore = SpannerVectorStore(
         instance_id="my-instance",
         database_id="my-database",
@@ -159,7 +163,7 @@ Use ``SpannerGraphQAChain`` for question answering over a graph stored in Spanne
 .. code:: python
 
     from langchain_google_spanner import SpannerGraphStore, SpannerGraphQAChain
-    from langchain_google_vertexai import ChatVertexAI
+    from langchain_google_genai import ChatGoogleGenerativeAI
 
 
     graph = SpannerGraphStore(
@@ -167,7 +171,7 @@ Use ``SpannerGraphQAChain`` for question answering over a graph stored in Spanne
         database_id="my-database",
         graph_name="my_graph",
     )
-    llm = ChatVertexAI()
+    llm = ChatGoogleGenerativeAI()
     chain = SpannerGraphQAChain.from_llm(
         llm,
         graph=graph,
@@ -187,7 +191,7 @@ Use ``SpannerGraphTextToGQLRetriever`` to translate natural language question to
 .. code:: python
 
     from langchain_google_spanner import SpannerGraphStore, SpannerGraphTextToGQLRetriever
-    from langchain_google_vertexai import ChatVertexAI
+    from langchain_google_genai import ChatGoogleGenerativeAI
 
 
     graph = SpannerGraphStore(
@@ -195,7 +199,7 @@ Use ``SpannerGraphTextToGQLRetriever`` to translate natural language question to
         database_id="my-database",
         graph_name="my_graph",
     )
-    llm = ChatVertexAI()
+    llm = ChatGoogleGenerativeAI()
     retriever = SpannerGraphTextToGQLRetriever.from_params(
         graph_store=graph,
         llm=llm
@@ -207,7 +211,6 @@ Use ``SpannerGraphVectorContextRetriever`` to perform vector search on embedding
 .. code:: python
 
     from langchain_google_spanner import SpannerGraphStore, SpannerGraphVectorContextRetriever
-    from langchain_google_vertexai import ChatVertexAI
     from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 
@@ -216,7 +219,11 @@ Use ``SpannerGraphVectorContextRetriever`` to perform vector search on embedding
         database_id="my-database",
         graph_name="my_graph",
     )
-    embedding_service = GoogleGenerativeAIEmbeddings(model="gemini-embedding-2")
+    embedding_service = GoogleGenerativeAIEmbeddings(
+        model="gemini-embedding-2",
+        project="my-project",
+        vertexai=True,
+    )
     retriever = SpannerGraphVectorContextRetriever.from_params(
             graph_store=graph,
             embedding_service=embedding_service,
